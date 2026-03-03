@@ -1,15 +1,15 @@
 # Preset Pro
 
-`Preset Pro` 是一个 Unity 编辑器效率插件，用于快速保存、整理、备份 Prefab 预设，并自动生成原生菜单入口。
+`Preset Pro` 是一个 Unity 编辑器效率插件，用于快速保存、整理、备份 Prefab 预设，并一键生成Hierarchy右键菜单入口。
 
-它特别适合特效师（VFX Artist）管理粒子系统资产：你可以把常用特效对象快速沉淀为可复用的预设库，按分类整理，随时一键实例化。
+它特别适合美术管理prefab资产：你可以把常用组件快速沉淀为可复用的预设库，按分类整理，随时一键实例化。
 
 ## 核心价值
 
 - 快速保存和备份场景中的对象为 Prefab 预设
-- 基于文件夹分类，天然支持批量导入导出
-- 自动同步到 `GameObject/Preset Pro/...` 原生菜单
-- 适合搭建个人粒子系统预设库、特效模板库
+- 基于文件夹分类，天然支持.unitypackage批量导入导出
+- 支持一键同步到 `/Preset Pro/...` Hierarchy右键菜单
+- 适搭建个人备份库、特效模板库
 
 ## 功能特性
 
@@ -23,6 +23,7 @@
 ## 兼容版本
 
 - Unity `2022.3.x`（开发与验证版本）
+- 预计可支持多个版本，待测试（
 
 ## 安装教程（Unity）
 
@@ -48,7 +49,7 @@ https://github.com/open1harry/presetpro.git#main
 
 1. 将仓库下载到本地。
 2. 把目录放到项目的 `Packages/com.vfxskill.presetpro`。
-3. 在项目 `Packages/manifest.json` 里添加：
+3. 在项目 `Packages/manifest.json` 里添加（可选）：
 
 ```json
 {
