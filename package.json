@@ -1,0 +1,10 @@
+{
+  "name": "com.vfxskill.presetpro",
+  "displayName": "Preset Pro",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "Minimal hierarchy preset workflow for Unity editor. Save selected objects as prefabs and generate native GameObject menu entries.",
+  "author": {
+    "name": "VFX Skill"
+  }
+}
