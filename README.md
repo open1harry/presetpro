@@ -1,29 +1,32 @@
 # Preset Pro
 
-`Preset Pro` 是一个 Unity 编辑器效率插件，用于快速保存、整理、备份 Prefab 预设，并一键生成Hierarchy右键菜单入口。
+`Preset Pro` 是一个 Unity 编辑器效率插件，用于快速保存、整理、备份 Prefab 预设，并一键生成 `GameObject` 菜单入口。
 
-它特别适合美术管理prefab资产：你可以把常用组件快速沉淀为可复用的预设库，按分类整理，随时一键实例化。
+它特别适合美术和特效工作流：你可以把常用对象快速沉淀为可复用的预设库，按分类整理，并通过 Unity 原生菜单快速实例化。
 
 ## 核心价值
 
 - 快速保存和备份场景中的对象为 Prefab 预设
-- 基于文件夹分类，天然支持.unitypackage批量导入导出
-- 支持一键同步到 `/Preset Pro/...` Hierarchy右键菜单
-- 适搭建个人备份库、特效模板库
+- 基于文件夹分类，天然支持批量整理、导入导出
+- 支持一键同步到 `GameObject/<自定义名称>/...` 菜单
+- 适合搭建个人或团队的特效模板库 / 预设资产库
 
 ## 功能特性
 
 - 文件夹即分类，Prefab 即选项
-- `Tools -> Preset Pro -> Settings` 设置面板
+- 顶级工具菜单位于 `VFXSkill -> Preset Pro`（英文）或 `VFXSkill -> 预设 Pro`（中文）
+- 顶级菜单会根据 `uiLanguage` 切换当前显示语言
 - `Shift + V` 快捷保存（Quick Add）
 - 自动生成 Unity `MenuItem` 菜单代码
 - 首次打开自动显示工具介绍
-- 默认中文界面（可切换英文）
+- 默认中文界面，可切换英文
+- 支持自定义 `GameObject` 菜单根节点名称
+- 支持在设置中调整分类顺序，生成菜单时按排序输出
+- 预设文件夹路径在设置中只读显示，通过选择器修改
 
 ## 兼容版本
 
 - Unity `2022.3.x`（开发与验证版本）
-- 预计可支持多个版本，待测试（
 
 ## 安装教程（Unity）
 
@@ -61,11 +64,30 @@ https://github.com/open1harry/presetpro.git#main
 
 ## 基本使用
 
-1. 打开 `Tools -> Preset Pro -> Settings`。
-2. 设置或确认预设根目录（默认 `Assets/PresetPro/Presets`）。
-3. 在该目录下按文件夹创建分类并放入 Prefab。
-4. 点击 `Generate/Refresh Menu` 生成原生菜单。
-5. 在 Hierarchy 选中对象后按 `Shift + V`，快速保存为预设。
+1. 打开 `VFXSkill -> Preset Pro -> Settings`（英文）或 `VFXSkill -> 预设 Pro -> 设置`（中文）。
+2. 确认预设根目录（默认 `Assets/PresetPro/Presets`）。
+3. 如有需要，设置 `GameObject` 菜单根节点名称。
+4. 在预设目录下按文件夹创建分类并放入 Prefab。
+5. 在设置中可编辑分类别名，并通过上下按钮调整分类顺序。
+6. 点击 `Generate Menu` 或 `生成菜单` 生成菜单。
+7. 在 Hierarchy 选中对象后按 `Shift + V`，快速保存为预设。
+
+## 菜单说明
+
+### 顶级工具菜单
+
+- 中文：`VFXSkill -> 预设 Pro -> 工具介绍 / 设置 / 快速添加 / 生成菜单`
+- 英文：`VFXSkill -> Preset Pro -> Introduction / Settings / Quick Add / Generate Menu`
+
+### GameObject 菜单
+
+生成后的实例化入口位于：
+
+```text
+GameObject/<自定义名称>/<分类>/<Prefab>
+```
+
+其中 `<自定义名称>` 默认为 `Preset Pro`，可在设置面板中修改。
 
 ## 目录结构
 
@@ -76,5 +98,5 @@ https://github.com/open1harry/presetpro.git#main
 
 - 按效果类型建分类：`Hit`、`Explosion`、`Trail`、`Buff`、`UIFx`
 - 用快捷保存把调好的粒子对象沉淀为标准预设
-- 通过原生菜单快速复用，减少重复搭建
+- 通过 `GameObject` 原生菜单快速复用，减少重复搭建
 - 作为个人/团队特效资产库，便于长期维护与备份

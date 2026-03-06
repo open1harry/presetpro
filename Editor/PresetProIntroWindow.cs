@@ -7,13 +7,12 @@ namespace PresetPro.Editor
     {
         private PresetProSettingsAsset _settings;
 
-        [MenuItem("Tools/Preset Pro/Introduction", false, 1199)]
         public static void OpenWindow()
         {
             var window = GetWindow<PresetProIntroWindow>();
             window._settings = PresetProSettingsProvider.GetOrCreateSettings();
-            window.titleContent = new GUIContent(window.T("\u5de5\u5177\u4ecb\u7ecd", "Introduction"));
-            window.minSize = new Vector2(560f, 360f);
+            window.titleContent = new GUIContent(window.T("工具介绍", "Introduction"));
+            window.minSize = new Vector2(560f, 380f);
             window.Show();
         }
 
@@ -29,42 +28,45 @@ namespace PresetPro.Editor
                 _settings = PresetProSettingsProvider.GetOrCreateSettings();
             }
 
+            string gameObjectMenuRoot = _settings.GetGameObjectMenuRoot();
+
             EditorGUILayout.Space(8f);
-            EditorGUILayout.LabelField(T("\u6b22\u8fce\u4f7f\u7528 Preset Pro", "Welcome to Preset Pro"), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(T("欢迎使用 Preset Pro", "Welcome to Preset Pro"), EditorStyles.boldLabel);
             EditorGUILayout.Space(6f);
             EditorGUILayout.HelpBox(
                 T(
-                    "\u8fd9\u662f\u4e00\u4e2a\u57fa\u4e8e Unity \u539f\u751f\u5de5\u4f5c\u6d41\u7684\u5feb\u901f\u9884\u8bbe\u5de5\u5177\u3002\n\n" +
-                    "\u6838\u5fc3\u7406\u5ff5\uff1a\u6587\u4ef6\u5939\u5373\u5206\u7c7b\uff0cPrefab \u5373\u9009\u9879\u3002\n" +
-                    "1. \u5728 Presets \u76ee\u5f55\u4e0b\u6309\u6587\u4ef6\u5939\u7ba1\u7406\u5206\u7c7b\n" +
-                    "2. \u7528 Shift+V \u628a\u573a\u666f\u5bf9\u8c61\u5feb\u901f\u4fdd\u5b58\u4e3a\u9884\u8bbe\n" +
-                    "3. \u70b9\u51fb\u201c\u751f\u6210/\u5237\u65b0\u83dc\u5355\u201d\u540e\uff0c\u9884\u8bbe\u4f1a\u51fa\u73b0\u5728 GameObject/Preset Pro",
-                    "This tool extends Unity native workflow for fast hierarchy presets.\n\n" +
-                    "Core idea: folder is category, prefab is option.\n" +
-                    "1. Organize categories with folders under Presets\n" +
-                    "2. Use Shift+V to save selected scene object as preset\n" +
-                    "3. Click Generate/Refresh Menu to rebuild GameObject/Preset Pro entries"),
+                    "Preset Pro 主要用于把场景中常用的对象快速沉淀为 Prefab 预设，便于分类整理、复用和备份。\n\n" +
+                    "菜单位置：\n" +
+                    "- VFXSkill/预设 Pro/设置\n" +
+                    "- VFXSkill/预设 Pro/快速添加\n" +
+                    "- VFXSkill/预设 Pro/生成菜单\n\n" +
+                    "使用方法：\n" +
+                    "1. 打开“设置”，确认 Presets 根目录，并按需修改 GameObject 菜单根节点名称。\n" +
+                    "2. 在 Presets 目录下按文件夹建立分类，并放入或保存 Prefab。\n" +
+                    "3. 在 Hierarchy 选中对象后按 Shift+V，可快速保存为预设。\n" +
+                    "4. 点击“生成菜单”，将预设同步到 GameObject/" + gameObjectMenuRoot + "/... 菜单。",
+                    "Preset Pro is used to turn commonly reused scene objects into prefab presets for organized reuse and backup.\n\n" +
+                    "Menu location:\n" +
+                    "- VFXSkill/Preset Pro/Settings\n" +
+                    "- VFXSkill/Preset Pro/Quick Add\n" +
+                    "- VFXSkill/Preset Pro/Generate Menu\n\n" +
+                    "How to use:\n" +
+                    "1. Open Settings, confirm the Presets root folder, and adjust the GameObject menu root name if needed.\n" +
+                    "2. Create category folders under Presets, then place or save prefabs into them.\n" +
+                    "3. Select an object in Hierarchy and press Shift+V to save it as a preset quickly.\n" +
+                    "4. Click Generate Menu to sync presets into GameObject/" + gameObjectMenuRoot + "/... ."),
                 MessageType.Info);
 
             EditorGUILayout.Space(10f);
-            using (new EditorGUILayout.HorizontalScope())
+            if (GUILayout.Button(T("打开设置", "Open Settings"), GUILayout.Height(30f)))
             {
-                if (GUILayout.Button(T("\u6253\u5f00\u8bbe\u7f6e", "Open Settings"), GUILayout.Height(30f)))
-                {
-                    PresetProFirstRunState.MarkIntroShown();
-                    PresetProSettingsWindow.OpenWindowInternal(true);
-                    Close();
-                }
-
-                if (GUILayout.Button(T("\u6253\u5f00\u5feb\u6377\u6dfb\u52a0", "Open Quick Add"), GUILayout.Height(30f)))
-                {
-                    PresetProFirstRunState.MarkIntroShown();
-                    PresetProQuickAddWindow.OpenForCurrentSelection();
-                }
+                PresetProFirstRunState.MarkIntroShown();
+                PresetProSettingsWindow.OpenWindowInternal(true);
+                Close();
             }
 
             EditorGUILayout.Space(8f);
-            if (GUILayout.Button(T("\u5173\u95ed", "Close"), GUILayout.Height(26f)))
+            if (GUILayout.Button(T("关闭", "Close"), GUILayout.Height(26f)))
             {
                 PresetProFirstRunState.MarkIntroShown();
                 Close();

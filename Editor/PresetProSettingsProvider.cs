@@ -11,12 +11,14 @@ namespace PresetPro.Editor
             if (settings != null)
             {
                 settings.presetsRoot = PresetProPathUtility.NormalizeAssetFolderPath(settings.presetsRoot);
+                settings.SanitizeMenuSettings();
                 return settings;
             }
 
             PresetProPathUtility.EnsureAssetFolderExists("Assets/PresetPro");
             settings = ScriptableObject.CreateInstance<PresetProSettingsAsset>();
             settings.presetsRoot = PresetProPathUtility.DefaultPresetsRoot;
+            settings.SanitizeMenuSettings();
             AssetDatabase.CreateAsset(settings, PresetProPathUtility.SettingsAssetPath);
             EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
@@ -32,6 +34,7 @@ namespace PresetPro.Editor
             }
 
             settings.presetsRoot = PresetProPathUtility.NormalizeAssetFolderPath(settings.presetsRoot);
+            settings.SanitizeMenuSettings();
             EditorUtility.SetDirty(settings);
             AssetDatabase.SaveAssets();
         }

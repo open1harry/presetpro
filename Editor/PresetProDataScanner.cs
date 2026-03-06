@@ -57,7 +57,16 @@ namespace PresetPro.Editor
                 categories.Add(category);
             }
 
-            categories.Sort((a, b) => string.CompareOrdinal(a.folderName, b.folderName));
+            if (settings != null)
+            {
+                settings.EnsureCategoryAliasOrders(categories);
+            }
+
+            categories.Sort((a, b) =>
+            {
+                int orderCompare = settings != null ? settings.GetSortOrder(a.folderName).CompareTo(settings.GetSortOrder(b.folderName)) : 0;
+                return orderCompare != 0 ? orderCompare : string.CompareOrdinal(a.folderName, b.folderName);
+            });
             return categories;
         }
     }

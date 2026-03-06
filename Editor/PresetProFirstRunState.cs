@@ -33,8 +33,8 @@ namespace PresetPro.Editor
                 return false;
             }
 
-            MarkIntroShown();
             PresetProIntroWindow.OpenWindow();
+            MarkIntroShown();
             return true;
         }
     }

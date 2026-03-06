@@ -10,13 +10,7 @@ namespace PresetPro.Editor
         private List<PresetProCategoryData> _categories = new List<PresetProCategoryData>();
         private Vector2 _scroll;
 
-        [MenuItem("Tools/Preset Pro/Settings", false, 1200)]
-        public static void OpenWindow()
-        {
-            OpenWindowInternal(false);
-        }
-
-        internal static void OpenWindowInternal(bool skipIntroCheck)
+        public static void OpenWindowInternal(bool skipIntroCheck)
         {
             if (!skipIntroCheck && PresetProFirstRunState.TryOpenIntroIfNeeded())
             {
@@ -24,21 +18,9 @@ namespace PresetPro.Editor
             }
 
             PresetProSettingsAsset settings = PresetProSettingsProvider.GetOrCreateSettings();
-            var window = GetWindow<PresetProSettingsWindow>(false, PresetProLocalization.Choose(settings, "\u9884\u8bbe Pro \u8bbe\u7f6e", "Preset Pro Settings"));
-            window.minSize = new Vector2(520f, 380f);
+            var window = GetWindow<PresetProSettingsWindow>(false, PresetProLocalization.Choose(settings, "预设 Pro 设置", "Preset Pro Settings"));
+            window.minSize = new Vector2(520f, 420f);
             window.Show();
-        }
-
-        [MenuItem("Tools/Preset Pro/Quick Add", false, 1201)]
-        public static void OpenQuickAdd()
-        {
-            PresetProQuickAddWindow.OpenForCurrentSelection();
-        }
-
-        [MenuItem("Tools/Preset Pro/Generate Refresh Menu", false, 1202)]
-        public static void GenerateMenu()
-        {
-            PresetProMenuGenerator.GenerateAndRefresh(true);
         }
 
         private void OnEnable()
@@ -50,10 +32,11 @@ namespace PresetPro.Editor
         {
             _settings = PresetProSettingsProvider.GetOrCreateSettings();
             _settings.presetsRoot = PresetProPathUtility.NormalizeAssetFolderPath(_settings.presetsRoot);
+            _settings.SanitizeMenuSettings();
             PresetProPathUtility.EnsureAssetFolderExists(_settings.presetsRoot);
             _categories = PresetProDataScanner.GetCategories(_settings);
             PresetProSettingsProvider.SaveSettings(_settings);
-            titleContent = new GUIContent(T("\u9884\u8bbe Pro \u8bbe\u7f6e", "Preset Pro Settings"));
+            titleContent = new GUIContent(T("预设 Pro 设置", "Preset Pro Settings"));
         }
 
         private void OnGUI()
@@ -66,14 +49,16 @@ namespace PresetPro.Editor
             EditorGUILayout.LabelField("Preset Pro", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
                 T(
-                    "\u6587\u4ef6\u5939\u5373\u5206\u7c7b\uff0cPrefab \u5373\u9009\u9879\u3002\u5c06\u7528\u6237\u9884\u8bbe\u653e\u5230 Presets \u76ee\u5f55\u540e\uff0c\u70b9\u51fb\"\u751f\u6210/\u5237\u65b0\u83dc\u5355\"\u5373\u53ef\u66f4\u65b0\u53f3\u952e\u83dc\u5355\u3002",
-                    "Folder is category, prefab is option. Put user prefabs under Presets and click Generate/Refresh Menu."),
+                    "文件夹即分类，Prefab 即选项。将用户预设放到 Presets 目录后，点击“生成菜单”即可更新 GameObject 菜单入口。",
+                    "Folder is category, prefab is option. Put user prefabs under Presets and click Generate Menu to update the GameObject menu entry."),
                 MessageType.Info);
             EditorGUILayout.Space(4f);
 
             DrawLanguage();
             EditorGUILayout.Space(8f);
             DrawPresetsRoot();
+            EditorGUILayout.Space(8f);
+            DrawGameObjectMenuRoot();
             EditorGUILayout.Space(8f);
             DrawCategoryAliasMappings();
             EditorGUILayout.Space(8f);
@@ -82,44 +67,34 @@ namespace PresetPro.Editor
 
         private void DrawLanguage()
         {
-            EditorGUILayout.LabelField(T("\u754c\u9762\u8bed\u8a00", "UI Language"), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(T("界面语言", "UI Language"), EditorStyles.boldLabel);
             int current = _settings.uiLanguage == PresetProLanguage.Chinese ? 0 : 1;
-            string[] options = { "\u4e2d\u6587\uff08\u9ed8\u8ba4\uff09", "English" };
+            string[] options = { "中文（默认）", "English" };
             EditorGUI.BeginChangeCheck();
-            int next = EditorGUILayout.Popup(T("\u9009\u62e9\u8bed\u8a00", "Language"), current, options);
+            int next = EditorGUILayout.Popup(T("选择语言", "Language"), current, options);
             if (EditorGUI.EndChangeCheck())
             {
                 _settings.uiLanguage = next == 0 ? PresetProLanguage.Chinese : PresetProLanguage.English;
                 PresetProSettingsProvider.SaveSettings(_settings);
-                titleContent = new GUIContent(T("\u9884\u8bbe Pro \u8bbe\u7f6e", "Preset Pro Settings"));
+                titleContent = new GUIContent(T("预设 Pro 设置", "Preset Pro Settings"));
+                PresetProMenuGenerator.GenerateAndRefresh(false);
             }
         }
 
         private void DrawPresetsRoot()
         {
-            EditorGUILayout.LabelField(T("\u9884\u8bbe\u6839\u76ee\u5f55", "Preset Root"), EditorStyles.boldLabel);
-            EditorGUI.BeginChangeCheck();
-            string root = EditorGUILayout.TextField(T("\u9884\u8bbe\u6587\u4ef6\u5939", "Presets Folder"), _settings.presetsRoot);
-            if (EditorGUI.EndChangeCheck())
+            EditorGUILayout.LabelField(T("预设根目录", "Preset Root"), EditorStyles.boldLabel);
+            using (new EditorGUI.DisabledScope(true))
             {
-                _settings.presetsRoot = PresetProPathUtility.NormalizeAssetFolderPath(root);
-                if (!PresetProPathUtility.IsAssetPathInsideProject(_settings.presetsRoot))
-                {
-                    EditorUtility.DisplayDialog("Preset Pro", T("\u8def\u5f84\u5fc5\u987b\u4f4d\u4e8e Assets \u76ee\u5f55\u4e0b\u3002", "Path must stay under Assets."), "OK");
-                    _settings.presetsRoot = PresetProPathUtility.DefaultPresetsRoot;
-                }
-
-                PresetProPathUtility.EnsureAssetFolderExists(_settings.presetsRoot);
-                PresetProSettingsProvider.SaveSettings(_settings);
-                _categories = PresetProDataScanner.GetCategories(_settings);
+                EditorGUILayout.TextField(T("预设文件夹", "Presets Folder"), _settings.presetsRoot);
             }
 
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button(T("\u6d4f\u89c8\u6587\u4ef6\u5939...", "Browse Folder..."), GUILayout.Width(150f)))
+                if (GUILayout.Button(T("浏览文件夹...", "Browse Folder..."), GUILayout.Width(150f)))
                 {
                     string selected = EditorUtility.OpenFolderPanel(
-                        T("\u9009\u62e9 Presets \u76ee\u5f55", "Choose Presets Folder"),
+                        T("选择 Presets 目录", "Choose Presets Folder"),
                         PresetProPathUtility.AssetPathToAbsolutePath(_settings.presetsRoot),
                         string.Empty);
 
@@ -135,12 +110,12 @@ namespace PresetPro.Editor
                         }
                         else
                         {
-                            EditorUtility.DisplayDialog("Preset Pro", T("\u8bf7\u9009\u62e9 Assets \u76ee\u5f55\u5185\u7684\u6587\u4ef6\u5939\u3002", "Pick a folder inside project Assets."), "OK");
+                            EditorUtility.DisplayDialog("Preset Pro", T("请选择 Assets 目录内的文件夹。", "Pick a folder inside project Assets."), "OK");
                         }
                     }
                 }
 
-                if (GUILayout.Button(T("\u6253\u5f00\u6587\u4ef6\u5939", "Open Folder"), GUILayout.Width(140f)))
+                if (GUILayout.Button(T("打开文件夹", "Open Folder"), GUILayout.Width(140f)))
                 {
                     string absolutePath = PresetProPathUtility.AssetPathToAbsolutePath(_settings.presetsRoot);
                     EditorUtility.RevealInFinder(absolutePath);
@@ -148,23 +123,51 @@ namespace PresetPro.Editor
             }
         }
 
+        private void DrawGameObjectMenuRoot()
+        {
+            EditorGUILayout.LabelField(T("GameObject 菜单根节点", "GameObject Menu Root"), EditorStyles.boldLabel);
+            EditorGUILayout.HelpBox(
+                T(
+                    "用于生成 GameObject/<名称>/... 菜单路径。会自动移除斜杠，留空时回退为 Preset Pro。",
+                    "Used for the generated GameObject/<name>/... menu path. Slashes are removed automatically, and an empty value falls back to Preset Pro."),
+                MessageType.None);
+
+            EditorGUI.BeginChangeCheck();
+            string nextRoot = EditorGUILayout.TextField(T("菜单名称", "Menu Name"), _settings.gameObjectMenuRoot);
+            if (EditorGUI.EndChangeCheck())
+            {
+                _settings.gameObjectMenuRoot = PresetProSettingsAsset.SanitizeGameObjectMenuRoot(nextRoot);
+                PresetProSettingsProvider.SaveSettings(_settings);
+            }
+        }
+
         private void DrawCategoryAliasMappings()
         {
-            EditorGUILayout.LabelField(T("\u5206\u7c7b\u522b\u540d\u6620\u5c04", "Category Alias Mappings"), EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(T("分类别名映射", "Category Alias Mappings"), EditorStyles.boldLabel);
             if (_categories.Count == 0)
             {
-                EditorGUILayout.HelpBox(T("\u5f53\u524d Presets \u6839\u76ee\u5f55\u4e0b\u8fd8\u6ca1\u6709\u5206\u7c7b\u6587\u4ef6\u5939\u3002", "No category folder found under the presets root."), MessageType.None);
+                EditorGUILayout.HelpBox(T("当前 Presets 根目录下还没有分类文件夹。", "No category folder found under the presets root."), MessageType.None);
                 return;
             }
 
-            _scroll = EditorGUILayout.BeginScrollView(_scroll, GUILayout.MinHeight(140f));
+            EditorGUILayout.HelpBox(
+                T("可通过上下按钮调整分类排序，生成菜单时会按此顺序显示。", "Use the up and down buttons to reorder categories. Generated menus will follow this order."),
+                MessageType.None);
+
+            _scroll = EditorGUILayout.BeginScrollView(_scroll, GUILayout.MinHeight(180f));
             bool changed = false;
+            bool reorderRequested = false;
             for (int i = 0; i < _categories.Count; i++)
             {
                 PresetProCategoryData category = _categories[i];
                 using (new EditorGUILayout.HorizontalScope())
                 {
-                    EditorGUILayout.LabelField(category.folderName, GUILayout.Width(180f));
+                    using (new EditorGUI.DisabledScope(true))
+                    {
+                        EditorGUILayout.IntField(i + 1, GUILayout.Width(44f));
+                    }
+
+                    EditorGUILayout.LabelField(category.folderName, GUILayout.Width(160f));
                     EditorGUI.BeginChangeCheck();
                     string alias = EditorGUILayout.TextField(_settings.GetAliasValue(category.folderName));
                     if (EditorGUI.EndChangeCheck())
@@ -172,6 +175,30 @@ namespace PresetPro.Editor
                         _settings.SetAliasValue(category.folderName, alias);
                         changed = true;
                     }
+
+                    using (new EditorGUI.DisabledScope(i == 0))
+                    {
+                        if (GUILayout.Button("↑", GUILayout.Width(28f)))
+                        {
+                            MoveCategory(i, i - 1);
+                            reorderRequested = true;
+                        }
+                    }
+
+                    using (new EditorGUI.DisabledScope(i >= _categories.Count - 1))
+                    {
+                        if (GUILayout.Button("↓", GUILayout.Width(28f)))
+                        {
+                            MoveCategory(i, i + 1);
+                            reorderRequested = true;
+                        }
+                    }
+                }
+
+                if (reorderRequested)
+                {
+                    changed = true;
+                    break;
                 }
             }
 
@@ -184,16 +211,31 @@ namespace PresetPro.Editor
             }
         }
 
+        private void MoveCategory(int fromIndex, int toIndex)
+        {
+            if (fromIndex < 0 || toIndex < 0 || fromIndex >= _categories.Count || toIndex >= _categories.Count || fromIndex == toIndex)
+            {
+                return;
+            }
+
+            PresetProCategoryData fromCategory = _categories[fromIndex];
+            PresetProCategoryData toCategory = _categories[toIndex];
+            int fromOrder = _settings.GetSortOrder(fromCategory.folderName);
+            int toOrder = _settings.GetSortOrder(toCategory.folderName);
+            _settings.SetSortOrder(fromCategory.folderName, toOrder);
+            _settings.SetSortOrder(toCategory.folderName, fromOrder);
+        }
+
         private void DrawActions()
         {
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button(T("\u5237\u65b0\u5206\u7c7b", "Refresh Categories"), GUILayout.Height(28f)))
+                if (GUILayout.Button(T("刷新分类", "Refresh Categories"), GUILayout.Height(28f)))
                 {
                     _categories = PresetProDataScanner.GetCategories(_settings);
                 }
 
-                if (GUILayout.Button(T("\u751f\u6210/\u5237\u65b0\u83dc\u5355", "Generate/Refresh Menu"), GUILayout.Height(28f)))
+                if (GUILayout.Button(T("生成菜单", "Generate Menu"), GUILayout.Height(28f)))
                 {
                     PresetProMenuGenerator.GenerateAndRefresh(true);
                 }

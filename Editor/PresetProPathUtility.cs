@@ -11,6 +11,7 @@ namespace PresetPro.Editor
         public const string SettingsAssetPath = "Assets/PresetPro/PresetProSettings.asset";
         public const string GeneratedMenuDirectory = "Assets/PresetPro/Editor/Generated";
         public const string GeneratedMenuScriptPath = GeneratedMenuDirectory + "/PresetProGeneratedMenu.cs";
+        public const string GeneratedEditorMenuScriptPath = GeneratedMenuDirectory + "/PresetProGeneratedEditorMenu.cs";
 
         public static string NormalizeAssetFolderPath(string path)
         {
